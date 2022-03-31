@@ -1,6 +1,6 @@
 var UrlSocios = "http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=GetSocios";
 var UrlPostSocio = "http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=InsertSocio";
-var UrlPostInsert = "http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=InsertSocio";
+var UrlGetSocio = "http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=GetSocio";
 var UrlPutUpdate = "http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=UpdateSocio";
 var UrlDeleteSocio ="http://52.152.236.67:90/G8_19/controller/socio_negocio.php?op=DeleteSocio";
 
@@ -10,40 +10,43 @@ $(document).ready(function(){
 
 function CargarSocios(){
     $.ajax({
-        url:UrlSocios,
+        url: UrlSocios,
         type: 'GET',
         datatype: 'JSON',
         success: function(reponse){
-            var MiItems= reponse;
+            var MiItems= JSON.parse(reponse);
             var Valores = '';
-            console.log(MiItems)
-            for( i=0; i < MiItems.length; i++){
-                Valores +='<tr>'+
-                '<td>'+ MiItems[i].ID +'</td>'+
-                '<td>'+ MiItems[i].NOMBRE +'</td>'+
-                '<td>'+ MiItems[i].RAZON_SOCIAL +'</td>'+
-                '<td>'+ MiItems[i].DIRECCION +'</td>'+
-                '<td>'+ MiItems[i].TIPO_SOCIO +'</td>'+
-                '<td>'+ MiItems[i].CONTACTO +'</td>'+
-                '<td>'+ MiItems[i].EMAIL +'</td>'+
-                '<td>'+ MiItems[i].FECHA_CREADO +'</td>'+
-                '<td>'+ MiItems[i].TELEFONO +'</td>'+
-                '<td>'+ MiItems[i].ESTADO +'</td>'+
-                '<td>'+
-                '<button class="btn btn-warning" onclick="CargarSocios(' + MiItems[i].ID +')>Editar</button>' +
-                '<button class="btn btn-outline-danger" onclick="EliminarSocios(' + MiItems[i].ID +')>Eliminar</button>' +
-                '<td>'+
-                '</tr>';
-                
+            MiItems.forEach(element => {
+                Valores += `<tr>
+                <td>${element.ID}</td>
+                <td>${element.NOMBRE}</td>
+                <td>${element.RAZON_SOCIAL}</td>
+                <td>${element.DIRECCION}</td>
+                <td>${element.TIPO_SOCIO}</td>
+                <td>${element.CONTACTO}</td>
+                <td>${element.EMAIL}</td>
+                <td>${element.FECHA_CREADO}</td>
+                <td>${element.TELEFONO}</td>
+                <td>${element.ESTADO}</td>
+                <td>
+                <button class="btn btn-warning" onclick="CargarSocio(${element.ID})">Editar</button>  
+                </td>
+                <td>
+                <button class="btn btn-outline-danger" onclick="EliminarSocio(${element.ID})">Eliminar</button>
+                </td>
+                </tr>`
                 $('.Sociosnegocio').html(Valores);
-            }
-            
+            });
+
+        },
+        error:function(textStatus,errorThrown){
+            alert('Error al crear socio'+ errorThrown);
         }
     });
      
 }
 
-function CargarSocio(){
+function CargarSocio(idsocio){
     var datossocio = {
         ID: idsocio
     };
@@ -51,31 +54,32 @@ function CargarSocio(){
     var datossociojson = JSON.stringify(datossocio);
 
     $.ajax({
-        Url: UrlGetSocio,
+        url: UrlGetSocio,
         type:'POST',
         data: datossociojson,
         datatype: 'JSON',
         contenttype:'application/json',
         success: function(reponse){
-            var MiItems = reponse;
-             $('#NOMBRE').val(MiItems [0].NOMBRE);
-             $('#RAZON_SOCIAL').val(MiItems [0].RAZON_SOCIAL);
-             $('#DIRECCION').val(MiItems [0].DIRECCION);
-             $('#TIPO_SOCIO').val(MiItems [0].TIPO_SOCIO);
-             $('#CONTACTO').val(MiItems [0].CONTACTO);
-             $('#EMAIL').val(MiItems [0].EMAIL);
-             $('#FECHA_CREADO').val(MiItems [0].FECHA_CREADO);
-             $('#TELEFONO').val(MiItems [0].TELEFONO);
-             $('#ESTADO').val(MiItems [0].ESTADO);
+            var MiItems = JSON.parse(reponse);
+             $('#NOMBRE').val(MiItems[0].NOMBRE);
+             $('#RAZON_SOCIAL').val(MiItems[0].RAZON_SOCIAL);
+             $('#DIRECCION').val(MiItems[0].DIRECCION);
+             $('#TIPO_SOCIO').val(MiItems[0].TIPO_SOCIO);
+             $('#CONTACTO').val(MiItems[0].CONTACTO);
+             $('#EMAIL').val(MiItems[0].EMAIL);
+             $('#FECHA_CREADO').val(MiItems[0].FECHA_CREADO);
+             $('#TELEFONO').val(MiItems[0].TELEFONO);
+             $('#ESTADO').val(MiItems[0].ESTADO);
         var btnactualizar = '<input type="submit" id="btn_actualizar" onclick="ActualizarSocio(' + MiItems[0].ID + 
-        'value=" Actualizar Socio" class="btn btn primary"></input';
+        ')" value="Actualizar Socio" class="btn btn-primary"></input';
+        
         $('#btnsocio').html(btnactualizar);
         }
     });
 }
 
 function AgregarSocio(){
-    var datossocio={
+    let datossocio={
         NOMBRE: $('#NOMBRE').val(),
         RAZON_SOCIAL : $('#RAZON_SOCIAL').val(),
         DIRECCION: $('#DIRECCION').val(),
@@ -86,27 +90,27 @@ function AgregarSocio(){
         TELEFONO: $('#TELEFONO').val(),
         ESTADO: $('#ESTADO').val()
     };
-    var datossociojson = JSON.stringify(datossocio);
+    let datossociojson = JSON.stringify(datossocio);
 
     $.ajax({
-        Url: UrlPostSocio,
-        type:'POST',
+        url: UrlPostSocio,
+        type: 'POST',
         data: datossociojson,
         datatype: 'JSON',
-        contenttype:'application/json',
-        success: function(reponse){
-            console.log(reponse);
+        contenttype: 'application/json',
+        success: function(response){
+            alert(response)
+            console.log(response)
         },
         error: function(){
-            alert('Error al Crear Socio');
+            alert('Error al insertar un nuevo socio')
         }
-    });
-    alert('Socio Agregado Exitosamente')
-
+    })
 }
 
-function ActualizarSocio(){
-    var datossocio = {
+function ActualizarSocio(idSocio){
+    
+    let datossocio={
         id: idsocio,
         nombre: $('#NOMBRE').val(),
         razon_social: $('#RAZON_SOCIAL').val(),
@@ -118,46 +122,43 @@ function ActualizarSocio(){
         telefono: $('#TELEFONO').val(),
         estado: $('#ESTADO').val()
     };
-    var datossociojson = JSON.stringify(datossocio);
-
+    let datossociojson = JSON.stringify(datossocio)
+    alert('alto')
     $.ajax({
-        Url: UrlPutSocio,
-        type:'PUT',
-        data: datossociojson,
+        url: UrlPutUpdate,
+        type: 'PUT',
+        data: JSON.stringify(datossociojson),
         datatype: 'JSON',
-        contenttype:'application/json',
-        success: function(reponse){
-            console.log(reponse);
-        },
-        error: function(){
-            alert('Error al Crear Socio');
+        contenttype: 'application/json',
+        success: function(response){
+            console.log(response)
+            alert(response)
         }
-    });
-    alert('Socio Actualizado')
+    })
 
 }
 
-function EliminarSocio(idsocio){    
-    var datossocio={
-        id: idsocio
+function EliminarSocio(idSocio){    
+    let datossocio={
+        id:idSocio
     };
-    var datossociojson = JSON.stringify(datossocio);
+    alert(idSocio)
+    let datossociojson = JSON.stringify(datossocio);
 
     $.ajax({
         url: UrlDeleteSocio,
         type: 'DELETE',
         data: datossociojson,
-        datatype:'JSON',
+        datatype: 'JSON',
         contenttype: 'application/json',
         success: function(reponse){
-            console.log(reponse);
+            alert(reponse),
+            CargarSocios()
         },
-        error: function(textStatus, errorThrown){
-            alert('Error al eliminar Socio' + errorThrown + '/'+ textStatus );
+        error:function(){
+            alert('Error al tratar de eliminar')
         }
-
-
-    });
-    alert("Socio Eliminado");
+    })
+    
 
 }
